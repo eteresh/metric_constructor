@@ -20,6 +20,38 @@
         <title>Конструктор метрик</title>
     </head>
     <body>
-        впа впва рпаррвравр а вовро
+
+        <table class="table table-striped table-bordered table-hover">
+            <tr>
+                <th>
+                    Действие
+                </th>
+                <th>
+                    Пользователей
+                </th>
+                <th>
+                    Действий на пользователя
+                </th>
+                <th>
+                    Действий всего
+                </th>
+            </tr>
+            {% for action in actions %}
+                <tr>
+                    <td>
+                        {{ action['name'] }}
+                    </td>
+                    <td>
+                        {{ action['users'] }}
+                    </td>
+                    <td>
+                        {{ action['actions_per_user'] }}
+                    </td>
+                    <td>
+                        {{ action['actions'] }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
     </body>
 </html>
