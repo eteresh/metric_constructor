@@ -142,7 +142,9 @@ def get_result():
         platforms = platforms.split(',')
     metric_type = request.args.get('metric_type', 'single')
     aggregation = request.args.get('agg', 'sum')
-    actions = request.args['actions'].split(',')
+    actions = request.args.get('actions', None)
+    if actions:
+        actions = actions.split(',')
     salt = request.args['salt']
     control_splits = request.args['c'].split(',')
     splits = request.args['s'].split(',')
@@ -155,7 +157,8 @@ def get_result():
     print(platforms)
     if platforms:
         filter.append("platform IN ({})".format(', '.join(map(lambda item: "'{}'".format(item), platforms))))
-    filter.append("action IN ({})".format(', '.join(map(lambda item: "'{}'".format(item), actions))))
+    if actions:
+        filter.append("action IN ({})".format(', '.join(map(lambda item: "'{}'".format(item), actions))))
     if filter:
         filter = 'WHERE ({})'.format(' AND '.join(filter))
     else:
