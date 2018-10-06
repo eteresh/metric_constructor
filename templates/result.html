@@ -50,6 +50,14 @@
             </tr>
             <tr>
                 <td>
+                    Полное число сплитов:
+                </td>
+                <td>
+                    {{ n_splits }}
+                </td>
+            </tr>
+            <tr>
+                <td>
                     Сплиты контрольной группы:
                 </td>
                 <td>
@@ -64,11 +72,18 @@
                     {{ splits }}
                 </td>
             </tr>
+            <tr>
+                <td>
+                    Агрегация метрик:
+                </td>
+                <td>
+                    {{ aggregation }}
+                </td>
+            </tr>
         </table>
-
-
+        <hr>
         {% for result in results %}
-        <H2>Результаты для действий {{ result['action'] }}<H2>
+        <H2>Результаты для действия <font color="red">{{ result['action'] }}</font><H2>
             <table class="table table-striped table-hover table-bordered table-dark">
             <tr>
                 <th>
@@ -95,6 +110,7 @@
                 </tr>
             {% endfor %}
         </table>
+        <hr size="10">
             <div id="results-figure-{{ result['action'] }}" style="width:100%;height:500px;"></div>
             <script>
             var trace = {
@@ -155,7 +171,7 @@
                         x0: {{ result['delta'] }},
                         y0: 0,
                         x1: {{ result['delta'] }},
-                        y1: 200,
+                        y1: 100,
                         line: {
                             color: 'rgb(0, 0, 0)',
                             width: 4,
@@ -166,6 +182,7 @@
               };
             Plotly.newPlot("results-figure-{{ result['action'] }}", [trace], layout);
         </script>
+        <hr size="10">
         {% endfor %}
     </body>
 </html>

@@ -199,4 +199,4 @@ def get_result():
         result = stat_test(data.loc[data['action'] == action].reset_index(drop=True), control_splits, splits, aggregation)
         result['action'] = action
         results.append(result)
-    return render_template('result.html', results=results, start_date=start_date, end_date=end_date, salt=salt, control_splits=', '.join(control_splits), splits=', '.join(splits))
+    return render_template('result.html', results=results, start_date=start_date, end_date=end_date, salt=salt, control_splits=', '.join(control_splits), splits=', '.join(splits), n_splits=n_splits, aggregation=aggregation)
