@@ -192,6 +192,11 @@ def get_result():
     data = pd.DataFrame(client.execute(query), columns=['action', 'uid', 'actions'])
     data['split'] = data['uid'].apply(partial(get_split,  salt=salt, n_splits=n_splits))
     data = data.loc[data['split'].isin(set(map(int, control_splits + splits)))].reset_index(drop=True)
-    result = stat_test(data, control_splits, splits, aggregation)
+    actions = data['action'].unique()
 
-    return render_template('result.html', result=result, deltas=result['deltas'])
+    results = []
+    for action in actions:
+        result = stat_test(data.loc[data['action'] == action].reset_index(drop=True), control_splits, splits, aggregation)
+        result['action'] = action
+        results.append(result)
+    return render_template('result.html', results=results, start_date=start_date, end_date=end_date, salt=salt, control_splits=', '.join(control_splits), splits=', '.join(splits))

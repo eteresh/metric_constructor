@@ -22,7 +22,54 @@
         <title>Конструктор метрик</title>
     </head>
     <body>
+        <H2>Параметры эксперимента<H2>
         <table class="table table-striped table-hover table-bordered table-dark">
+            <tr>
+                <td>
+                    Дата и время начала:
+                </td>
+                <td>
+                    {{ start_date }}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Дата и время окончания:
+                </td>
+                <td>
+                    {{ end_date }}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Соль:
+                </td>
+                <td>
+                    {{ salt }}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Сплиты контрольной группы:
+                </td>
+                <td>
+                    {{ control_splits }}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Сплиты экспериментальной группы:
+                </td>
+                <td>
+                    {{ splits }}
+                </td>
+            </tr>
+        </table>
+
+
+        {% for result in results %}
+        <H2>Результаты для действий {{ result['action'] }}<H2>
+            <table class="table table-striped table-hover table-bordered table-dark">
             <tr>
                 <th>
                     Группа
@@ -48,10 +95,10 @@
                 </tr>
             {% endfor %}
         </table>
-        <div id="results-figure" style="width:100%;height:500px;"></div>
-        <script>
+            <div id="results-figure-{{ result['action'] }}" style="width:100%;height:500px;"></div>
+            <script>
             var trace = {
-                x: [{% for delta in deltas %} {{ delta }}, {% endfor %}],
+                x: [{% for delta in result['deltas'] %} {{ delta }}, {% endfor %}],
                 type: 'histogram',
                 {% if result['significant'] %}
                     {% if result['success'] %}
@@ -70,7 +117,7 @@
                 {% endif %}
               };
               var layout = {
-                  title: 'Результаты метрики',
+                  title: 'Результаты эксперимента для метрики {{ result['action'] }}',
                   // xaxis: {
                   //     title: 'Номер метрики в таблице',
                   //     range: [0, {{ unique_metric_results|length + 1 }}],
@@ -117,8 +164,8 @@
                     },
                 ]
               };
-            Plotly.newPlot('results-figure', [trace], layout);
+            Plotly.newPlot("results-figure-{{ result['action'] }}", [trace], layout);
         </script>
-
+        {% endfor %}
     </body>
 </html>
