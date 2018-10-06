@@ -40,7 +40,7 @@ def get_main_page():
     platforms = [{k: v  for k, v in zip(keys, item)} for item in platforms]
 
     query = """
-        SELECT action, COUNT(DISTINCT uid) AS users, ROUND(AVG(user_actions), 4) AS actions_per_user, SUM(user_actions) AS actions
+        SELECT action, COUNT(DISTINCT uid) AS users, ROUND(AVG(user_actions), 2) AS actions_per_user, SUM(user_actions) AS actions
         FROM (
             SELECT action, uid, SUM(1.0) AS user_actions
             FROM actions
@@ -120,12 +120,18 @@ def stat_test(data, control_splits, splits, aggregation):
     delta = experiment_group_value - control_group_value
     deltas, left_percentile, right_percentile = bootstrap_test(control_values, values, aggregate=aggregation)
     plot_results(delta, deltas, left_percentile, right_percentile)
-    results = [
+    result = {'groups': [
         {'name': u'Контроль', u'users': control_group_users, 'value': control_group_value},
         {'name': u'Эксперимент', u'users': experiment_group_users, 'value': experiment_group_value},
         {'name': u'Разность', u'users': experiment_group_users - control_group_users, 'value': delta},
-    ]
-    return results, left_percentile, right_percentile, deltas
+    ]}
+    result['delta'] = delta
+    result['left_percentile'] = left_percentile
+    result['right_percentile'] = right_percentile
+    result['deltas'] = deltas
+    result['significant'] = not (left_percentile <= 0.0 <= right_percentile)
+    result['success'] = result['significant'] and 0.0 < left_percentile
+    return result
 
 
 def get_result():
@@ -163,6 +169,6 @@ def get_result():
     data = pd.DataFrame(client.execute(query), columns=['action', 'uid', 'actions'])
     data['split'] = data['uid'].apply(partial(get_split,  salt=salt, n_splits=n_splits))
     data = data.loc[data['split'].isin(set(map(int, control_splits + splits)))].reset_index(drop=True)
-    results, left_percentile, right_percentile, deltas = stat_test(data, control_splits, splits, aggregation)
+    result = stat_test(data, control_splits, splits, aggregation)
 
-    return render_template('result.html', results=results)
+    return render_template('result.html', result=result, deltas=result['deltas'])

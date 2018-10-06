@@ -21,8 +21,8 @@
         <title>Конструктор метрик</title>
     </head>
     <body>
-        Статистика по платформам:
         <table class="table table-striped table-bordered table-hover table-dark">
+            <caption>Статистика по платформам</caption>
             <tr>
                 <th>
                     Платформа
@@ -55,22 +55,25 @@
             {% endfor %}
         </table>
 
-        Статистика по действиям:
+
         <table class="table table-striped table-bordered table-hover table-dark">
-            <tr>
-                <th>
-                    Действие
-                </th>
-                <th>
-                    Пользователей
-                </th>
-                <th>
-                    Действий на пользователя
-                </th>
-                <th>
-                    Действий всего
-                </th>
-            </tr>
+            <caption>Статистика по действиям</caption>
+            <thead>
+                <tr>
+                    <th>
+                        Действие
+                    </th>
+                    <th>
+                        Пользователей
+                    </th>
+                    <th>
+                        Действий на пользователя
+                    </th>
+                    <th>
+                        Действий всего
+                    </th>
+                </tr>
+            </thead>
             {% for action in actions %}
                 <tr>
                     <td>

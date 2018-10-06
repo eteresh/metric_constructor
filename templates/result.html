@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap-grid.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap-reboot.min.css') }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type=text/javascript src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script type=text/javascript src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+          position: relative;
+          font-size: 25px;
+          width:"80%";
+        }
+        .navbar {
+            height: 50px;
+        }
+    </style>
+
+    <head>
+        <title>Конструктор метрик</title>
+    </head>
+    <body>
+        <table class="table table-striped table-hover table-bordered table-dark">
+            <tr>
+                <th>
+                    Группа
+                </th>
+                <th>
+                    Пользователей
+                </th>
+                <th>
+                    Значение метрики
+                </th>
+            </tr>
+            {% for item in result['groups'] %}
+                <tr>
+                    <td>
+                        {{ item['name'] }}
+                    </td>
+                    <td>
+                        {{ item['users'] }}
+                    </td>
+                    <td>
+                        {{ item['value'] }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        <div id="results-figure" style="width:100%;height:500px;"></div>
+        <script>
+            var trace = {
+                x: [{% for delta in deltas %} {{ delta }}, {% endfor %}],
+                type: 'histogram',
+                {% if result['significant'] %}
+                    {% if result['success'] %}
+                        marker:{
+                            color: 'rgba(0,204,4,0.8)',
+                        }
+                    {% else %}
+                        marker:{
+                            color: 'rgba(204,0,4,0.8)',
+                        }
+                    {% endif %}
+                {% else %}
+                    marker:{
+                        color: 'rgba(44,44,44,0.8)',
+                    }
+                {% endif %}
+              };
+              var layout = {
+                  title: 'Результаты метрики',
+                  // xaxis: {
+                  //     title: 'Номер метрики в таблице',
+                  //     range: [0, {{ unique_metric_results|length + 1 }}],
+                  // },
+                // yaxis: {title: 'Отношение отклонения от контрольной группы к уровню шума'},
+                margin: {t: 50, b: 100},
+                hovermode: 'closest',
+                shapes: [
+                    {
+                        type: 'line',
+                        x0: {{ result['left_percentile'] }},
+                        y0: 0,
+                        x1: {{ result['left_percentile'] }},
+                        y1: 100,
+                        line: {
+                            color: 'rgb(252, 226, 5)',
+                            width: 4,
+                            dash: 'dashdot'
+                        },
+                    },
+                    {
+                        type: 'line',
+                        x0: {{ result['right_percentile'] }},
+                        y0: 0,
+                        x1: {{ result['right_percentile'] }},
+                        y1: 100,
+                        line: {
+                            color: 'rgb(252, 226, 5)',
+                            width: 4,
+                            dash: 'dashdot'
+                        },
+                    },
+                    {
+                        type: 'line',
+                        x0: {{ result['delta'] }},
+                        y0: 0,
+                        x1: {{ result['delta'] }},
+                        y1: 200,
+                        line: {
+                            color: 'rgb(0, 0, 0)',
+                            width: 4,
+                            dash: 'dashdot'
+                        },
+                    },
+                ]
+              };
+            Plotly.newPlot('results-figure', [trace], layout);
+        </script>
+
+    </body>
+</html>
