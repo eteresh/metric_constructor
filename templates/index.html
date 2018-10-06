@@ -10,18 +10,53 @@
         body {
           position: relative;
           font-size: 25px;
-          width:"100%";
+          width:"80%";
         }
         .navbar {
             height: 50px;
         }
     </style>
+
     <head>
         <title>Конструктор метрик</title>
     </head>
     <body>
+        Статистика по платформам:
+        <table class="table table-striped table-bordered table-hover table-dark">
+            <tr>
+                <th>
+                    Платформа
+                </th>
+                <th>
+                    Пользователей
+                </th>
+                <th>
+                    Различных действий
+                </th>
+                <th>
+                    Действий всего
+                </th>
+            </tr>
+            {% for platform in platforms %}
+                <tr>
+                    <td>
+                        {{ platform['name'] }}
+                    </td>
+                    <td>
+                        {{ platform['users'] }}
+                    </td>
+                    <td>
+                        {{ platform['uniq_actions'] }}
+                    </td>
+                    <td>
+                        {{ platform['actions'] }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
 
-        <table class="table table-striped table-bordered table-hover">
+        Статистика по действиям:
+        <table class="table table-striped table-bordered table-hover table-dark">
             <tr>
                 <th>
                     Действие
@@ -53,5 +88,6 @@
                 </tr>
             {% endfor %}
         </table>
+        <a href="/result"> Стат. тест </a>
     </body>
 </html>

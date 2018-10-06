@@ -4,3 +4,5 @@ pandas
 scipy
 psycopg2
 clickhouse-driver
+matplotlib
+tqdm
