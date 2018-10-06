@@ -2,6 +2,7 @@
 
 import numpy as np
 import pandas as pd
+from joblib import Parallel, delayed
 from flask import render_template, request, jsonify
 from clickhouse_driver import Client
 from hashlib import sha256
@@ -87,9 +88,28 @@ def bootstrap(values, n_bootstrap_iterations=10 ** 4, aggregate='mean'):
     return np.array(results)
 
 
-def bootstrap_test(left_array, right_array, n_bootstrap_iterations=10**4, aggregate='mean', alpha=0.05):
-    left_array_bootstrap = bootstrap(left_array, n_bootstrap_iterations, aggregate=aggregate)
-    right_array_bootstrap = bootstrap(right_array, n_bootstrap_iterations, aggregate=aggregate)
+def partition_indices(total, part, nparts):
+    if not (0 <= part < nparts):
+        raise ValueError()
+    part_size = total / nparts
+    left = total % nparts
+    lower = part_size * part + min(left, part)
+    return lower, lower + part_size + (1 if part < left else 0)
+
+
+def bootstrap_parallel(values, n_bootstrap_iterations=10**4, aggregate='mean', n_jobs=8):
+    jobs = []
+    for partition_index in xrange(n_jobs):
+        start, end = partition_indices(n_bootstrap_iterations, partition_index, n_jobs)
+        job_iterations = end - start
+        jobs.append(delayed(bootstrap)(values, n_bootstrap_iterations=job_iterations, aggregate=aggregate))
+    results = np.hstack(Parallel(n_jobs=n_jobs)(jobs))
+    return results
+
+
+def bootstrap_test(left_array, right_array, n_bootstrap_iterations=3*10**3, aggregate='mean', alpha=0.05):
+    left_array_bootstrap = bootstrap_parallel(left_array, n_bootstrap_iterations, aggregate=aggregate)
+    right_array_bootstrap = bootstrap_parallel(right_array, n_bootstrap_iterations, aggregate=aggregate)
 
     deltas = right_array_bootstrap - left_array_bootstrap
     left_percentile, right_percentile = np.percentile(deltas, [100 * alpha / 2, 100 * (1 - alpha / 2)])
